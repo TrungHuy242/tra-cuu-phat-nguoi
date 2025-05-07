@@ -8,8 +8,14 @@ import os
 
 def tra_cuu_phat_nguoi():
     success = False  
+    captcha_error_count = 0
 
     while not success:  
+        if captcha_error_count > 10:
+            print("Lỗi: Đã thử nhập mã captcha sai quá 10 lần. Dừng tra cứu!")
+            success = True 
+            continue 
+        
         driver = webdriver.Chrome()
         driver.get('https://www.csgt.vn/tra-cuu-phuong-tien-vi-pham.html')
 
@@ -20,7 +26,7 @@ def tra_cuu_phat_nguoi():
 
             # Nhập biển số xe
             element_bien_so = driver.find_element(By.NAME, 'BienKiemSoat')
-            txt_bien_so = '99D146675'
+            txt_bien_so = '99D146675' # Đây là biển số xe có vi phạm thật
             element_bien_so.send_keys(txt_bien_so)
 
             # Tự động đọc mã bảo mật (captcha)
@@ -50,7 +56,8 @@ def tra_cuu_phat_nguoi():
                 error_div = driver.find_element(By.CLASS_NAME, 'xe_texterror')
                 error_text = error_div.text.strip()
                 if "Mã xác nhận sai" in error_text:
-                    print("Mã xác nhận sai! Restart lại quy trình...")
+                    captcha_error_count += 1
+                    print(f"Mã xác nhận sai! Restart lại quy trình... (Lần thử: {captcha_error_count})")
                     driver.quit()
                     if os.path.exists('captcha.png'):
                         os.remove('captcha.png')
